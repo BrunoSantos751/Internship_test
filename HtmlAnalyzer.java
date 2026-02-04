@@ -10,12 +10,10 @@ import java.util.Stack;
 public class HtmlAnalyzer {
 
     public static void main(String[] args) {
-        if (args.length != 1) {
-            // Usage is not specified as an error output, but premises imply correct usage.
-            // However, to be safe, if no URL is provided, we can't do much.
-            // Let's assume the evaluator follows instructions.
-            // But if we want to be helpful:
-            System.out.println("Usage: java HtmlAnalyzer <URL>");
+        if (args.length != 1) {// If no URL is provided, run standard example
+            List<String> htmlLines = fetchHtml("http://hiring.axreng.com/internship/example1.html");
+            String result = analyze(htmlLines);
+            System.out.println(result);
             return;
         }
 

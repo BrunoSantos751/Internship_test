@@ -21,7 +21,8 @@ javac --release 17 HtmlAnalyzer.java
 
 ## Como Executar
 
-Para analisar uma URL, execute:
+
+Para analisar uma URL específica, execute:
 
 ```bash
 java HtmlAnalyzer <URL>
@@ -30,6 +31,12 @@ java HtmlAnalyzer <URL>
 Exemplo:
 ```bash
 java HtmlAnalyzer http://hiring.axreng.com/internship/example1.html
+```
+
+Caso nenhum argumento seja fornecido, o programa executará com uma URL de exemplo padrão:
+
+```bash
+java HtmlAnalyzer
 ```
 
 ## Notas da Implementação
