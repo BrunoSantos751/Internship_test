@@ -1,40 +1,106 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
-import java.util.Stack;
 
 public class HtmlAnalyzer {
+    public String analyze(List<String> lines) {
+        Deque<String> tagStack = new ArrayDeque<>();
+        int maxDepth = -1;
+        String deepestText = "";
+
+        for (String line : lines) {
+            String trimmed = line.trim();
+            if (trimmed.isEmpty()) {
+                continue;
+            }
+
+            if (trimmed.startsWith("</")) {
+                if (tagStack.isEmpty()) {
+                    return "malformed HTML";
+                }
+
+                String tagName = getTagName(trimmed);
+                if (tagName.isEmpty()) {
+                    return "malformed HTML";
+                }
+
+                String expectedTagName = tagStack.pop();
+
+                if (!tagName.equals(expectedTagName)) {
+                    return "malformed HTML";
+                }
+            } else if (trimmed.startsWith("<")) {
+                if (!trimmed.endsWith(">")) {
+                    return "malformed HTML";
+                }
+                String tagName = getTagName(trimmed);
+                if (tagName.isEmpty()) {
+                    return "malformed HTML";
+                }
+                tagStack.push(tagName);
+            } else {
+                int currentDepth = tagStack.size();
+                if (currentDepth > maxDepth) {
+                    maxDepth = currentDepth;
+                    deepestText = line.trim();
+                }
+            }
+        }
+
+        if (!tagStack.isEmpty()) {
+            return "malformed HTML";
+        }
+
+        if (maxDepth == -1) {
+            return "malformed HTML";
+        }
+
+        return deepestText;
+    }
+
+    private String getTagName(String tagLine) {
+        String content = tagLine.trim();
+        if (content.startsWith("</")) {
+            content = content.substring(2, content.length() - 1);
+        } else {
+            content = content.substring(1, content.length() - 1);
+        }
+        return content.trim();
+    }
 
     public static void main(String[] args) {
-        if (args.length != 1) {// If no URL is provided, run standard example
-            List<String> htmlLines = fetchHtml("http://hiring.axreng.com/internship/example1.html");
-            String result = analyze(htmlLines);
-            System.out.println(result);
+        if (args.length != 1) {
+            System.out.println("URL connection error");
             return;
         }
 
-        String targetUrl = args[0];
-        List<String> htmlLines = fetchHtml(targetUrl);
+        HtmlFetcher fetcher = new HtmlFetcher();
+        List<String> htmlLines = fetcher.fetch(args[0]);
 
         if (htmlLines == null) {
             System.out.println("URL connection error");
             return;
         }
 
-        String result = analyze(htmlLines);
-        System.out.println(result);
+        HtmlAnalyzer analyzer = new HtmlAnalyzer();
+        System.out.println(analyzer.analyze(htmlLines));
     }
+}
 
-    private static List<String> fetchHtml(String urlString) {
+class HtmlFetcher {
+    public List<String> fetch(String urlString) {
         List<String> lines = new ArrayList<>();
         try {
             URL url = new URL(urlString);
             java.net.URLConnection connection = url.openConnection();
-            connection.setConnectTimeout(5000); // 5 seconds timeout
+            connection.setConnectTimeout(5000);
             connection.setReadTimeout(5000);
 
             if (connection instanceof HttpURLConnection) {
@@ -46,7 +112,8 @@ public class HtmlAnalyzer {
                 }
             }
 
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     lines.add(line);
@@ -56,66 +123,5 @@ public class HtmlAnalyzer {
             return null;
         }
         return lines;
-    }
-
-    private static String analyze(List<String> lines) {
-        Stack<String> tagStack = new Stack<>();
-        int maxDepth = -1;
-        String deepestText = "";
-
-        // Flag to check if we actually found any deep text.
-        // If the HTML is empty or has no text, behavior isn't explicitly defined
-        // but "malformed HTML" usually applies to structure errors.
-
-        for (String line : lines) {
-            String trimmed = line.trim();
-            if (trimmed.isEmpty()) {
-                continue;
-            }
-
-            if (trimmed.startsWith("</")) {
-                // Closing tag
-                if (tagStack.isEmpty()) {
-                    return "malformed HTML";
-                }
-
-                String tagName = getTagName(trimmed);
-                String expectedTagName = tagStack.pop();
-
-                if (!tagName.equals(expectedTagName)) {
-                    return "malformed HTML";
-                }
-            } else if (trimmed.startsWith("<")) {
-                // Opening tag
-                // Assuming simplified HTML: no attributes, so just <tag>
-                tagStack.push(getTagName(trimmed));
-            } else {
-                // Text content
-                int currentDepth = tagStack.size();
-                // "Se dois ou mais trechos estiverem no nível máximo de profundidade do
-                // documento, o primeiro deles deve ser retornado."
-                // So we only update if strictly greater.
-                if (currentDepth > maxDepth) {
-                    maxDepth = currentDepth;
-                    deepestText = line.trim(); // The requirement says "trecho de texto" (segment of text).
-                                               // Premise 8 says "ignorar espaços iniciais".
-                                               // Example shows "Este é o título." without quotes.
-                }
-            }
-        }
-
-        if (!tagStack.isEmpty()) {
-            return "malformed HTML";
-        }
-
-        return deepestText;
-    }
-
-    private static String getTagName(String tagLine) {
-        // Remove <, </, >
-        // Example: <div> -> div
-        // Example: </div> -> div
-        String content = tagLine.replace("<", "").replace(">", "").replace("/", "");
-        return content.trim();
     }
 }
