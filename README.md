@@ -1,48 +1,50 @@
+EASTER_EGG_URLS
+
 # HtmlAnalyzer
 
-Solução para o desafio técnico "Internship Test".
+Solution for the "Internship Test" technical challenge.
 
-O programa analisa o código HTML de uma URL fornecida e retorna o primeiro trecho de texto contido no nível mais profundo da estrutura.
+The program analyzes the HTML source code from a given URL and returns the first text snippet found at the deepest level of the HTML structure.
 
-## Requisitos
+## Requirements
 
-- JDK 17 ou superior (compatível com Java 17)
+- JDK 17 or higher (compatible with Java 17)
 
-## Como Compilar
+## How to Compile
 
-Navegue até o diretório contendo o arquivo `HtmlAnalyzer.java` e execute:
+Navigate to the directory containing the `HtmlAnalyzer.java` file and run:
 
 ```bash
 javac HtmlAnalyzer.java
 ```
 
-## Como Executar
+## How to Run
 
-Para analisar uma URL específica, execute o seguinte comando:
+To analyze a specific URL, run the following command:
 
 ```bash
 java HtmlAnalyzer <URL>
 ```
 
-**Exemplo:**
+**Example:**
 ```bash
 java HtmlAnalyzer http://hiring.axreng.com/internship/example1.html
 ```
 
-## Saída do Programa
+## Program Output
 
-O programa gera apenas os seguintes tipos de output no console padrão:
+The program generates only the following types of output to standard console:
 
-1.  **Trecho de texto identificado:** O texto no nível mais profundo da estrutura HTML.
-2.  **malformed HTML:** Caso a estrutura HTML esteja malformada (tags desbalanceadas, tag de fechamento sem abertura, estrutura incompleta).
-3.  **URL connection error:** Caso não seja possível obter o conteúdo HTML por falha de conexão ou caso a URL não seja fornecida corretamente.
+1.  **Identified text snippet:** The text at the deepest level of the HTML structure.
+2.  **malformed HTML:** If the HTML structure is malformed (unbalanced tags, closing tag without opening, incomplete structure).
+3.  **URL connection error:** If the HTML content cannot be obtained due to a connection failure or if the URL is not provided correctly.
 
-## Premissas e Limitações
+## Assumptions and Limitations
 
-A solução segue as premissas simplificadas descritas no desafio:
+The solution follows the simplified assumptions described in the challenge:
 
--   O HTML é analisado linha a linha.
--   Cada linha contém apenas um tipo de conteúdo (tag de abertura, tag de fechamento ou texto).
--   Ignora espaços em branco e linhas vazias.
--   Tags de abertura não possuem atributos.
--   Não utiliza bibliotecas externas ou pacotes de manipulação de XML/DOM do Java.
+-   The HTML is analyzed line by line.
+-   Each line contains only one type of content (opening tag, closing tag, or text).
+-   Ignores whitespace and empty lines.
+-   Opening tags do not have attributes.
+-   Does not use external libraries or Java XML/DOM manipulation packages.
