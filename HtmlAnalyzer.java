@@ -14,14 +14,21 @@ public class HtmlAnalyzer {
         Deque<String> tagStack = new ArrayDeque<>();
         int maxDepth = -1;
         String deepestText = "";
+        boolean sufix;
+      
 
         for (String line : lines) {
             String trimmed = line.trim();
             if (trimmed.isEmpty()) {
                 continue;
             }
+            if (trimmed.endsWith(">")){
+                 sufix = true;
 
-            if (trimmed.startsWith("</")) {
+            } else{
+                 sufix = false;
+            }
+            if (trimmed.startsWith("</") & sufix ) {
                 if (tagStack.isEmpty()) {
                     return "malformed HTML";
                 }
@@ -35,19 +42,16 @@ public class HtmlAnalyzer {
 
                 if (!tagName.equals(expectedTagName)) {
                     return "malformed HTML";
-                }
-            } else if (trimmed.startsWith("<")) {
-                if (!trimmed.endsWith(">")) {
-                    return "malformed HTML";
-                }
-                String tagName = getTagName(trimmed);
+                } 
+            } else if (trimmed.startsWith("<" ) & sufix ) {
+               String tagName = getTagName(trimmed);
                 if (tagName.isEmpty()) {
                     return "malformed HTML";
                 }
                 tagStack.push(tagName);
-            } else {
+            } else { // Text content
                 int currentDepth = tagStack.size();
-                if (currentDepth > maxDepth) {
+                if (currentDepth >= maxDepth) {
                     maxDepth = currentDepth;
                     deepestText = line.trim();
                 }
@@ -69,7 +73,7 @@ public class HtmlAnalyzer {
         String content = tagLine.trim();
         if (content.startsWith("</")) {
             content = content.substring(2, content.length() - 1);
-        } else {
+        } else { // content.startsWith("<")
             content = content.substring(1, content.length() - 1);
         }
         return content.trim();
